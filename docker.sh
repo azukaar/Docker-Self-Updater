@@ -10,14 +10,14 @@ if [ -n "$CIRCLE_BRANCH" ]; then
   fi
 fi
 
-echo "Pushing azukaar/cosmos-server:$VERSION and azukaar/cosmos-server:$LATEST"
+echo "Pushing azukaar/docker-self-updater:$VERSION and azukaar/docker-self-updater:$LATEST"
 
 sh build.sh
 
 docker build \
-  -t azukaar/cosmos-server:$VERSION \
-  -t azukaar/cosmos-server:$LATEST \
+  -t azukaar/docker-self-updater:$VERSION \
+  -t azukaar/docker-self-updater:$LATEST \
   .
 
-docker push azukaar/cosmos-server:$VERSION
-docker push azukaar/cosmos-server:$LATEST
+docker push azukaar/docker-self-updater:$VERSION
+docker push azukaar/docker-self-updater:$LATEST

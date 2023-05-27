@@ -1,0 +1,15 @@
+node_modules
+build
+.vite
+static
+.bin
+client/dist
+client/.vite
+config_dev.json
+config_dev.old.json
+tests
+todo.txt
+LICENCE
+tokens.json
+.vscode
+GeoLite2-Country.mmdb

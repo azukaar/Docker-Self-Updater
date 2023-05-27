@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=$(npm pkg get version | tr -d \")
+VERSION="0.0.1"
 LATEST="latest"
 
 # if branch is unstable in git for circle ci

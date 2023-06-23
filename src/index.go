@@ -745,4 +745,16 @@ func main() {
 
 		Log("Container updated successfully")
 	}
+
+	if action == "recreate" {
+		// recreate container by calling edit container
+		_, err = EditContainer(container.ID, container, false)
+
+		if err != nil {
+			Error("Failed to update container - ", err)
+			return
+		}
+
+		Log("Container updated successfully")
+	}
 }

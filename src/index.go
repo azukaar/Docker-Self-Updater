@@ -16,6 +16,7 @@ import (
 	mountType "github.com/docker/docker/api/types/mount"
 	network "github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types"
+	"github.com/docker/go-connections/nat"
 	"log"
 )
 
@@ -657,6 +658,59 @@ func main() {
 		return
 	}
 
+	if action == "ports" {
+		Log("Updating ports for " + containerName)
+
+		portslist := os.Getenv("PORTS")
+		ports := strings.Split(portslist, ",")
+
+		Log("Ports to use: " + portslist)
+		
+		// inspect container
+		inspect, err := DockerClient.ContainerInspect(DockerContext, containerName)
+		if err != nil {
+			Error("Failed to inspect container - ", err)
+			return
+		}
+		
+		// Update the container
+		inspect.HostConfig.PortBindings = map[nat.Port][]nat.PortBinding{}
+		inspect.Config.ExposedPorts = make(map[nat.Port]struct{})
+
+		for _, port := range ports {
+			caca := strings.Split(port, ":")
+			hostPort, contPort := caca[0], caca[1]
+			
+			Log("Adding port " + hostPort + " to " + contPort)
+
+			// Get the existing bindings for this container port, if any
+			bindings := inspect.HostConfig.PortBindings[nat.Port(contPort)]
+
+			// Append a new PortBinding to the slice of bindings
+			bindings = append(bindings, nat.PortBinding{
+				HostPort: hostPort,
+			})
+
+			// Update the port bindings for this container port
+			inspect.HostConfig.PortBindings[nat.Port(contPort)] = bindings
+
+			// Mark the container port as exposed
+			inspect.Config.ExposedPorts[nat.Port(contPort)] = struct{}{}
+		}
+		
+		// recreate container by calling edit container
+		_, err = EditContainer(container.ID, inspect, false)
+
+		if err != nil {
+			Error("Failed to update container - ", err)
+			return
+		}
+
+		Log("Container updated successfully")
+		return
+	}
+
+
 	// if action == "update" then pull image
 	if action == "update" {
 		Log("Checking for updates for " + container.Config.Image)
@@ -680,15 +734,15 @@ func main() {
 				Log(newStr)
 			}
 		}
+
+		// recreate container by calling edit container
+		_, err = EditContainer(container.ID, container, false)
+
+		if err != nil {
+			Error("Failed to update container - ", err)
+			return
+		}
+
+		Log("Container updated successfully")
 	}
-
-	// recreate container by calling edit container
-	_, err = EditContainer(container.ID, container, false)
-
-	if err != nil {
-		Error("Failed to update container - ", err)
-		return
-	}
-
-	Log("Container updated successfully")
 }

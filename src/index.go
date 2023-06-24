@@ -636,11 +636,13 @@ func main() {
 
 	if containerName == "" {
 		Error("No container name specified", nil)
+		time.Sleep(60 * time.Minute)
 		return
 	}
 
 	if action == "" {
 		Error("No action specified", nil)
+		time.Sleep(60 * time.Minute)
 		return
 	}
 
@@ -648,6 +650,7 @@ func main() {
 	err := Connect()
 	if err != nil {
 		Error("Failed to connect to docker - ", err)
+		time.Sleep(60 * time.Minute)
 		return
 	}
 
@@ -655,6 +658,7 @@ func main() {
 	container, err := DockerClient.ContainerInspect(DockerContext, containerName)
 	if err != nil {
 		Error("Failed to inspect container - ", err)
+		time.Sleep(60 * time.Minute)
 		return
 	}
 
@@ -670,6 +674,7 @@ func main() {
 		inspect, err := DockerClient.ContainerInspect(DockerContext, containerName)
 		if err != nil {
 			Error("Failed to inspect container - ", err)
+			time.Sleep(60 * time.Minute)
 			return
 		}
 		
@@ -703,6 +708,7 @@ func main() {
 
 		if err != nil {
 			Error("Failed to update container - ", err)
+			time.Sleep(60 * time.Minute)
 			return
 		}
 
@@ -717,6 +723,7 @@ func main() {
 		rc, err := DockerClient.ImagePull(DockerContext, container.Config.Image, types.ImagePullOptions{})
 		if err != nil {
 			Error("Failed to pull image - ", err)
+			time.Sleep(60 * time.Minute)
 			return
 		}
 
@@ -740,6 +747,7 @@ func main() {
 
 		if err != nil {
 			Error("Failed to update container - ", err)
+			time.Sleep(60 * time.Minute)
 			return
 		}
 
@@ -752,6 +760,7 @@ func main() {
 
 		if err != nil {
 			Error("Failed to update container - ", err)
+			time.Sleep(60 * time.Minute)
 			return
 		}
 

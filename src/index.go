@@ -682,10 +682,17 @@ func main() {
 		inspect.HostConfig.PortBindings = map[nat.Port][]nat.PortBinding{}
 		inspect.Config.ExposedPorts = make(map[nat.Port]struct{})
 
+		hostPortsBound := make(map[string]bool)
+
 		for _, port := range ports {
 			caca := strings.Split(port, ":")
 			hostPort, contPort := caca[0], caca[1]
 			
+			if hostPortsBound[hostPort] {
+				Warn("Port " + hostPort + " already bound, skipping")
+				continue
+			}
+
 			Log("Adding port " + hostPort + " to " + contPort)
 
 			// Get the existing bindings for this container port, if any
@@ -701,6 +708,8 @@ func main() {
 
 			// Mark the container port as exposed
 			inspect.Config.ExposedPorts[nat.Port(contPort)] = struct{}{}
+
+			hostPortsBound[hostPort] = true
 		}
 		
 		// recreate container by calling edit container

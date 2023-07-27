@@ -661,6 +661,8 @@ func main() {
 		time.Sleep(60 * time.Minute)
 		return
 	}
+	
+	container.HostConfig.NetworkMode = "bridge"
 
 	if action == "ports" {
 		Log("Updating ports for " + containerName)

@@ -688,7 +688,7 @@ func main() {
 
 		for _, port := range ports {
 			caca := strings.Split(port, ":")
-			proto = "tcp"
+			proto := "tcp"
 			hostPort, contPort := caca[0], caca[1]
 
 			if strings.Contains(contPort, "/") {

@@ -688,13 +688,14 @@ func main() {
 
 		for _, port := range ports {
 			caca := strings.Split(port, ":")
+			proto = "tcp"
 			hostPort, contPort := caca[0], caca[1]
-			contPort, proto := strings.Split(contPort, "/")[0], strings.Split(contPort, "/")[1]
 
-			if proto == "" {
-				proto = "tcp"
+			if strings.Contains(contPort, "/") {
+				contPort = strings.Split(contPort, "/")[0]
+				proto = strings.Split(contPort, "/")[1]
 			}
-			
+
 			if hostPortsBound[hostPort] {
 				Warn("Port " + hostPort + " already bound, skipping")
 				continue

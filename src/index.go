@@ -689,6 +689,11 @@ func main() {
 		for _, port := range ports {
 			caca := strings.Split(port, ":")
 			hostPort, contPort := caca[0], caca[1]
+			contPort, proto := strings.Split(contPort, "/")[0], strings.Split(contPort, "/")[1]
+
+			if proto == "" {
+				proto = "tcp"
+			}
 			
 			if hostPortsBound[hostPort] {
 				Warn("Port " + hostPort + " already bound, skipping")
@@ -698,18 +703,18 @@ func main() {
 			Log("Adding port " + hostPort + " to " + contPort)
 
 			// Get the existing bindings for this container port, if any
-			bindings := inspect.HostConfig.PortBindings[nat.Port(contPort)]
+			bindings := inspect.HostConfig.PortBindings[nat.Port(contPort + "/" + proto)]
 
 			// Append a new PortBinding to the slice of bindings
 			bindings = append(bindings, nat.PortBinding{
-				HostPort: hostPort,
+					HostPort: hostPort,
 			})
 
 			// Update the port bindings for this container port
-			inspect.HostConfig.PortBindings[nat.Port(contPort)] = bindings
+			inspect.HostConfig.PortBindings[nat.Port(contPort + "/" + proto)] = bindings
 
 			// Mark the container port as exposed
-			inspect.Config.ExposedPorts[nat.Port(contPort)] = struct{}{}
+			inspect.Config.ExposedPorts[nat.Port(contPort + "/" + proto)] = struct{}{}
 
 			hostPortsBound[hostPort] = true
 		}

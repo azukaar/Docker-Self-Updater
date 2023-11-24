@@ -691,7 +691,7 @@ func main() {
 			proto := "tcp"
 			hostPort, contPort := caca[0], caca[1]
 
-			if strings.Contains(contPort, "/") {
+			if len(strings.Split(contPort, "/")) > 1 {
 				contPort = strings.Split(contPort, "/")[0]
 				proto = strings.Split(contPort, "/")[1]
 			}

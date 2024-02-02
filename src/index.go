@@ -662,7 +662,9 @@ func main() {
 		return
 	}
 	
-	container.HostConfig.NetworkMode = "bridge"
+	if container.HostConfig.NetworkMode != "host" && container.HostConfig.NetworkMode != "bridge" {
+		container.HostConfig.NetworkMode = "bridge"
+	}
 
 	if action == "ports" {
 		Log("Updating ports for " + containerName)
@@ -772,6 +774,21 @@ func main() {
 	}
 
 	if action == "recreate" {
+		// recreate container by calling edit container
+		_, err = EditContainer(container.ID, container, false)
+
+		if err != nil {
+			Error("Failed to update container - ", err)
+			time.Sleep(60 * time.Minute)
+			return
+		}
+
+		Log("Container updated successfully")
+	}
+
+	if action == "host" {
+		container.HostConfig.NetworkMode = "host"
+		
 		// recreate container by calling edit container
 		_, err = EditContainer(container.ID, container, false)
 

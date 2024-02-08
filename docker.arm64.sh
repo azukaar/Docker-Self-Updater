@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="0.0.13"
+VERSION="0.0.14"
 LATEST="latest"
 
 # if branch is unstable in git for circle ci

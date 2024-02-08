@@ -788,6 +788,9 @@ func main() {
 
 	if action == "host" {
 		container.HostConfig.NetworkMode = "host"
+
+		// remove mac address
+		container.Config.MacAddress = ""
 		
 		// recreate container by calling edit container
 		_, err = EditContainer(container.ID, container, false)

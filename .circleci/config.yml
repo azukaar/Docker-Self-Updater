@@ -29,34 +29,8 @@ jobs:
           name: Build and publish dockerfiles
           command: sh docker.sh
 
-  buildarm:
-    machine:
-      image: ubuntu-2004:202101-01
-    resource_class: arm.medium
-
-    steps:
-      - checkout
-
       - run:
-          name: install dependencies
-          command: sudo apt-get install bash curl
-
-      - run:
-          name: download Go
-          command: wget https://golang.org/dl/go1.23.2.linux-arm64.tar.gz
-      
-      - run:
-          name: install Go
-          command: sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.23.2.linux-arm64.tar.gz
-      
-      - run:
-          name: set Go path
-          command: echo 'export PATH=$PATH:/usr/local/go/bin' >> $BASH_ENV
-
-      - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
-
-      - run:
-          name: Build and publish dockerfiles
+          name: Build and publish dockerfiles for ARM64
           command: sh docker.arm64.sh
 
 workflows:
@@ -64,12 +38,6 @@ workflows:
   build-all:
     jobs:
       - build:
-          filters:
-            branches:
-              only:
-                - master
-                - unstable
-      - buildarm:
           filters:
             branches:
               only:

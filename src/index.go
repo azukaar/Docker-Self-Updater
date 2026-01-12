@@ -14,6 +14,8 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/api/types/container"
 	mountType "github.com/docker/docker/api/types/mount"
+	containerTypes "github.com/docker/docker/api/types/container"
+	imageTypes "github.com/docker/docker/api/types/image"
 	network "github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/go-connections/nat"
@@ -87,7 +89,7 @@ var DockerContext context.Context
 var DockerNetworkName = "cosmos-network"
 
 func getIdFromName(name string) (string, error) {
-	containers, err := DockerClient.ContainerList(DockerContext, types.ContainerListOptions{})
+	containers, err := DockerClient.ContainerList(DockerContext, containerTypes.ListOptions{})
 	if err != nil {
 		Error("Docker Container List", err)
 		return "", err
@@ -285,7 +287,7 @@ func EditContainer(oldContainerID string, newConfig types.ContainerJSON, noLock 
 		_, _, errImage := DockerClient.ImageInspectWithRaw(DockerContext, newConfig.Config.Image)
 		if errImage != nil {
 			Log("EditContainer - Image not found, pulling " + newConfig.Config.Image)
-			out, errPull := DockerClient.ImagePull(DockerContext, newConfig.Config.Image, types.ImagePullOptions{})
+			out, errPull := DockerClient.ImagePull(DockerContext, newConfig.Config.Image, imageTypes.PullOptions{})
 			if errPull != nil {
 				Error("EditContainer - Image not found.", errPull)
 				return "", errors.New("Image not found. " + errPull.Error())
@@ -308,7 +310,7 @@ func EditContainer(oldContainerID string, newConfig types.ContainerJSON, noLock 
 			return "", stopError
 		}
 
-		removeError := DockerClient.ContainerRemove(DockerContext, oldContainerID, types.ContainerRemoveOptions{})
+		removeError := DockerClient.ContainerRemove(DockerContext, oldContainerID, containerTypes.RemoveOptions{})
 		if removeError != nil {
 			return "", removeError
 		}
@@ -375,7 +377,7 @@ func EditContainer(oldContainerID string, newConfig types.ContainerJSON, noLock 
 	
 	Log("EditContainer - Networks Connected. Starting new container " + createResponse.ID)
 
-	runError := DockerClient.ContainerStart(DockerContext, createResponse.ID, types.ContainerStartOptions{})
+	runError := DockerClient.ContainerStart(DockerContext, createResponse.ID, containerTypes.StartOptions{})
 
 	if runError != nil {
 		Error("EditContainer - Failed to run container", runError)
@@ -400,8 +402,8 @@ func EditContainer(oldContainerID string, newConfig types.ContainerJSON, noLock 
 			DockerClient.ContainerKill(DockerContext, oldContainerID, "")
 			DockerClient.ContainerKill(DockerContext, createResponse.ID, "")
 			// attempt remove in case created state
-			DockerClient.ContainerRemove(DockerContext, oldContainerID, types.ContainerRemoveOptions{})
-			DockerClient.ContainerRemove(DockerContext, createResponse.ID, types.ContainerRemoveOptions{})
+			DockerClient.ContainerRemove(DockerContext, oldContainerID, containerTypes.RemoveOptions{})
+			DockerClient.ContainerRemove(DockerContext, createResponse.ID, containerTypes.RemoveOptions{})
 		}
 
 		Log("EditContainer - Reverting...")
@@ -477,7 +479,7 @@ func ListContainers() ([]types.Container, error) {
 		return nil, errD
 	}
 
-	containers, err := DockerClient.ContainerList(DockerContext, types.ContainerListOptions{
+	containers, err := DockerClient.ContainerList(DockerContext, containerTypes.ListOptions{
 		All: true,
 	})
 	if err != nil {
@@ -560,7 +562,7 @@ func CheckUpdatesAvailable() map[string]bool {
 			continue
 		}
 
-		rc, err := DockerClient.ImagePull(DockerContext, container.Image, types.ImagePullOptions{})
+		rc, err := DockerClient.ImagePull(DockerContext, container.Image, imageTypes.PullOptions{})
 		if err != nil {
 			Error("CheckUpdatesAvailable", err)
 			continue
@@ -739,7 +741,7 @@ func main() {
 	// if action == "update" then pull image
 	if action == "update" {
 		Log("Checking for updates for " + container.Config.Image)
-		rc, err := DockerClient.ImagePull(DockerContext, container.Config.Image, types.ImagePullOptions{})
+		rc, err := DockerClient.ImagePull(DockerContext, container.Config.Image, imageTypes.PullOptions{})
 		if err != nil {
 			Error("Failed to pull image - ", err)
 			time.Sleep(60 * time.Minute)
